@@ -1,0 +1,134 @@
+{
+  "schema": {
+    "Incident Year": {
+      "dtype": "uint16",
+      "kind": "categorical",
+      "values": [
+        1990,
+        1991,
+        1992,
+        1993,
+        1994,
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004
+      ],
+      "codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    "Operator": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "AMERICAN AIRLINES",
+        "DELTA AIR LINES",
+        "FEDEX EXPRESS",
+        "MILITARY",
+        "SOUTHWEST AIRLINES",
+        "UNITED AIRLINES"
+      ],
+      "codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "Species Name": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "AMERICAN KESTREL",
+        "BARN SWALLOW",
+        "COYOTE",
+        "GULL",
+        "HORNED LARK",
+        "MOURNING DOVE",
+        "UNKNOWN MEDIUM BIRD"
+      ],
+      "codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    "Species Quantity": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "1",
+        "11-100",
+        "2-10",
+        "Over 100",
+        "Unknown"
+      ],
+      "codes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "Incident Month": {
+      "dtype": "uint8",
+      "kind": "categorical",
+      "values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    }
+  }
+}

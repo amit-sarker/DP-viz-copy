@@ -1,0 +1,9 @@
+{
+  "dtype": {
+    "Incident Year": "uint16",
+    "Operator": "str",
+    "Species Name": "str",
+    "Species Quantity": "str",
+    "Incident Month": "uint8"
+  }
+}

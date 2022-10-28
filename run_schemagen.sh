@@ -1,0 +1,2 @@
+python /Users/joiewu/nist-synthetic-data-2021/extensions/schemagen.py ~/dp/DP-viz/data/wildlife/wildlife_trunc.csv --max_categorical 40 -t -o ~/dp/DP-viz/data/wildlife
+python /Users/joiewu/nist-synthetic-data-2021/extensions/transform.py --transform discretize --df ~/dp/DP-viz/data/wildlife/wildlife_trunc.csv --schema ~/dp/DP-viz/data/wildlife/parameters.json --output_dir ~/dp/DP-viz/data/wildlife

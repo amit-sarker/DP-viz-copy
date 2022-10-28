@@ -1,0 +1,16 @@
+CPS_histogram.npy
+
+This histogram can be loaded as an ndarray using the numpy.load function. The domain and bin boundaries for each dimension are given below:
+
+income: domain - [0,500000], bin boundaries - [0, 10000, 20000, ... 480000, 490000, 500000]
+
+age: domain - [0,100], bin boundaries - [0, 1, 2, ... 98, 99, 100]
+
+marital: domain - [1,8], bin boundaries - [1, 2, 3, 4, 5, 6, 7, 8]
+
+race: domain - [1,5], bin boundaries - [1, 2, 3, 4, 5]
+
+sex: domain - [1,3], bin boundaries - [1, 2, 3]
+
+Number of records: 49427
+Number of buckets: 280000

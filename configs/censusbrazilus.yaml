@@ -1,0 +1,57 @@
+cps_config:
+        a:
+           bins: 2
+           domain: [0,1]
+           type: discrete
+        b:
+           bins: 6
+           domain: [0,6]
+           type: discrete
+        c:
+           bins: 23
+           domain: [0,23]
+           type: discrete
+        d:
+           bins: 9
+           domain: [0,9]
+           type: discrete
+        e:
+           bins: 78
+           domain: [0,77]
+           type: discrete
+        f:
+           bins: 2
+           domain: [0,1]
+           type: discrete
+        g:
+           bins: 2
+           domain: [0,1]
+           type: discrete
+        h:
+           bins: 2
+           domain: [0,1]
+           type: discrete
+        i:
+           bins: 2
+           domain: [0,1]
+           type: discrete
+        j:
+           bins: 4
+           domain: [0,3]
+           type: discrete
+        k:
+           bins: 99
+           domain: [0,98]
+           type: discrete
+        l:
+           bins: 2
+           domain: [0,1]
+           type: discrete
+        m:
+           bins: 32
+           domain: [0,31]
+           type: discrete
+        n:
+           bins: 70
+           domain: [0, 148000]
+           type: continuous
