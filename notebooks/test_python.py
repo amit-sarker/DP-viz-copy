@@ -1,23 +1,23 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[128]:
 
 
-import numpy as np
-import pandas as pd
-import ipywidgets as widgets
 import sys
 
-print("Before  ", sys.path)
+import ipywidgets as widgets
+
 sys.path.append('../')
 sys.path.append('../src')
-print("After  ", sys.path)
+
 import src.backend
 import src.workload_builder as builder
-from mbi import Domain, Dataset
+from mbi import Domain
 import src.plots
 import altair as alt
+
+alt.renderers.enable('default')
 from IPython.display import display, clear_output
 
 from IPython.core.display import display, HTML
@@ -26,18 +26,18 @@ display(HTML("<style>.container { width:100% !important; }</style>"))
 
 alt.data_transformers.disable_max_rows()
 
-# In[148]:
+# In[129]:
 
 
 data_path = '../data/CPS/CPS.csv'
 cps_domain = Domain(attrs=('age', 'income', 'marital', 'race'), shape=(100, 100, 7, 4))
 questions = ["Warm Up: Type 'Yes' if you are ready to begin!",
-             "Tutorial Question 1/6: How many Chinese and American Indians have 'Widowed' as their marital status?",
-             "Tutorial Question 2/6: How many people over the age of 65 have income between 100,000 and 149,000?",
-             "Tutorial Question 3/6: What is the second most common marital status of people with income in the 100,000 to 199,000 range?",
-             "Tutorial Question 4/6: Choose the top 3 age groups that have marital status: 'Never Married'?",
-             "Tutorial Question 5/6: In the 100,000 to 199,000 income range, rank the top 3 races in terms of count from greatest to least.",
-             "Tutorial Question 6/6: What is the second most common race in the 45-54 age group?"]
+             "Question 1/6: How many Chinese and American Indians have 'Widowed' as their marital status?",
+             "Question 2/6: How many people over the age of 65 have income between 100,000 and 149,000?",
+             "Question 3/6: What is the second most common marital status of people with income in the 100,000 to 199,000 range?",
+             "Question 4/6: Choose the top 3 age groups that have marital status: 'Never Married'?",
+             "Question 5/6: In the 100,000 to 199,000 income range, rank the top 3 races in terms of count from greatest to least.",
+             "Question 6/6: What is the second most common race in the 45-54 age group?"]
 
 marital_race = {'marital': 1, 'race': 1}
 age_income = {'age': 10, 'income': 10}
@@ -52,14 +52,19 @@ curr_spec = None
 epsilon_increments = [None, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
 budget = 1.0
 max_tries = 10
-
+global index
 index = 0
 tries = 0
 back_end = None
 
+# In[130]:
+
+
+cps_domain
+
 # # Logging
 
-# In[149]:
+# In[131]:
 
 
 import logging
@@ -102,17 +107,20 @@ handler.setFormatter(logging.Formatter('%(asctime)s  - [%(levelname)s] %(message
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
-# In[150]:
+# In[132]:
 
 
 plot_output = widgets.Output()
 
-# In[151]:
+# In[133]:
+
+
+# plot_output
 
 
 #  ## Dropdown Boxes
 
-# In[152]:
+# In[134]:
 
 
 columns = ['Age', 'Income', 'Marital Status']
@@ -120,8 +128,10 @@ translate = {'Income': 'income', 'Marital Status': 'marital', 'Age': 'age', 'Rac
 
 # ## Buttons
 
-# In[153]:
+# In[135]:
 
+
+import numpy as np
 
 submit_btn = widgets.Button(description='Submit')
 make_it_better = widgets.Button(description='Remeasure')
@@ -153,7 +163,17 @@ def on_click_submit(obj):
 
     hist = builder.histogram_workload(cps_domain.config, bin_widths=visualizations[index])
 
-    back_end.measure_hdmm(workload=hist, eps=epsilon_increments[index], restarts=20)
+    # logger.info(hist.matrix.matrix)
+
+    y_hat, strategy_matrix = back_end.measure_hdmm(workload=hist, eps=epsilon_increments[index],
+                                                   restarts=20)  # got y_hat
+
+    # B = np.linalg.pinv(strategy_matrix)
+
+    # logger.info("printing y_hat")
+    # logger.info(B)
+    logger.info("printing strategy matrix")
+    #     logger.info(strategy_matrix.matrix)
 
     column_names = list(visualizations[index].keys())
     curr_spec = back_end.display(hist)
@@ -162,14 +182,19 @@ def on_click_submit(obj):
         plot_output.clear_output()
         plot = src.plots.linked_hist(column_names[0], column_names[1], data=curr_spec.reset_index(column_names),
                                      display_true=False, history=False)
+        logger.info(plot)
+        #         display("Updating...")
         display(plot)
 
+
+#         altair_viewer.show(plot)
 
 def on_click_make_it_better(obj):
     global index, visualizations, tries
     logger.info('Clicked remeasure, question: {}'.format(index))
 
     key_val = [x for x in visualizations[index].items()]
+    logger.info(key_val)
     measure_dict = {'left': key_val[0], 'right': key_val[1]}
     binning(measure_dict, epsilon=epsilon_increments[index])
 
@@ -177,12 +202,88 @@ def on_click_make_it_better(obj):
 submit_btn.on_click(on_click_submit)
 make_it_better.on_click(on_click_make_it_better)
 
+# In[ ]:
+
+
+# In[136]:
+
+
+# import numpy as np
+#
+# submit_btn = widgets.Button(description='Submit')
+# make_it_better = widgets.Button(description='Remeasure')
+# start_btn = widgets.Button(description='Start')
+#
+# # def on_click_start():
+#
+#
+# def on_click_submit(obj):
+#     global index, survey_answers, visualizations, epsilon_increments, curr_spec, back_end
+#     logger.info('Clicked submit')
+#     if answer.value == '':
+#         return
+#     val = answer.value
+#     answer.value = answer.placeholder
+#     survey_answers[index] = val
+#
+#     if index+1 < len(questions):
+#         index += 1
+#         prompt.value = questions[index]
+#     else:
+#         with plot_output:
+#             clear_output()
+#         submit_btn.close()
+#         interface.close()
+#         bar_label.close()
+#         prompt.value = 'Tutorial finished, thanks for your participation!'
+#         display(prompt)
+#         return
+#
+#     back_end = src.backend.initialize_backend(cps_domain, data_path, budget=1.0)
+#
+#     hist = builder.histogram_workload(cps_domain.config, bin_widths=visualizations[index])
+#
+#     # logger.info(hist.matrix.matrix)
+#
+#     y_hat, strategy_matrix = back_end.measure_hdmm(workload=hist, eps=epsilon_increments[index], restarts=20) # got y_hat
+#
+#     # B = np.linalg.pinv(strategy_matrix)
+#
+#     # logger.info("printing y_hat")
+#     # logger.info(B)
+#     logger.info("printing strategy matrix")
+# #     logger.info(strategy_matrix.matrix)
+#
+#     column_names = list(visualizations[index].keys())
+#     curr_spec = back_end.display(hist)
+#
+#     with plot_output:
+#         plot_output.clear_output()
+#         plot = src.plots.linked_hist(column_names[0], column_names[1], data=curr_spec.reset_index(column_names), display_true=False, history=False)
+#         logger.info(plot)
+# #         display("Updating...")
+#         display(plot)
+# #         altair_viewer.show(plot)
+#
+# def on_click_make_it_better(obj):
+#     global index, visualizations, tries
+#     logger.info('Clicked remeasure, question: {}'.format(index))
+#
+#     key_val = [x for x in visualizations[index].items()]
+#     logger.info(key_val)
+#     measure_dict = {'left': key_val[0], 'right': key_val[1]}
+#     binning(measure_dict, epsilon = epsilon_increments[index])
+#
+# submit_btn.on_click(on_click_submit)
+# make_it_better.on_click(on_click_make_it_better)
+
+
 # ## Text Boxes
 
-# In[154]:
+# In[137]:
 
 
-global index
+# global index
 prompt = widgets.Textarea(
     value=questions[0],
     placeholder='Type',
@@ -198,17 +299,49 @@ answer = widgets.Textarea(
     layout=widgets.Layout(width='300px', height='40px')
 )
 
-# In[159]:
-
-
-widgets.Textarea(
-    value='Hello World',
-    placeholder='Type something',
-    description='String:',
-    disabled=False
+answer2 = widgets.Textarea(
+    value='',
+    placeholder='',
+    description='Answer:',
+    layout=widgets.Layout(width='300px', height='40px')
 )
 
-# In[155]:
+answer3 = widgets.Textarea(
+    value='',
+    placeholder='',
+    description='Answer:',
+    layout=widgets.Layout(width='300px', height='40px')
+)
+
+answer4 = widgets.Textarea(
+    value='',
+    placeholder='',
+    description='Answer:',
+    layout=widgets.Layout(width='300px', height='40px')
+)
+
+answer5 = widgets.Textarea(
+    value='',
+    placeholder='',
+    description='Answer:',
+    layout=widgets.Layout(width='300px', height='40px')
+)
+
+answer6 = widgets.Textarea(
+    value='',
+    placeholder='',
+    description='Answer:',
+    layout=widgets.Layout(width='300px', height='40px')
+)
+
+# In[138]:
+
+
+text_area = []
+for i in range(len(questions)):
+    text_area.append(answer)
+
+# In[139]:
 
 
 back_end = src.backend.initialize_backend(cps_domain, data_path, budget=budget)
@@ -239,12 +372,13 @@ def binning(measure_dict, epsilon=None, group_income=None):
         tries += 1
         progress_bar.value = tries
         progress_bar.description = str(tries) + '/' + str(max_tries)
-        back_end.measure_hdmm(workload=hist, eps=epsilon, restarts=20)
+        y_hat, strategy_matrix = back_end.measure_hdmm(workload=hist, eps=epsilon, restarts=20)
 
     prev_spec = curr_spec
     prev_spec.rename(columns={'error': 'error_prev', 'plus_error': 'plus_error_prev', 'minus_error': 'minus_error_prev',
                               'true_count': 'true_count_prev', 'noisy_count': 'noisy_count_prev'}, inplace=True)
-    curr_spec = back_end.display(hist)
+    curr_spec = back_end.display(hist)  ################# Cache_search function called
+
     spec = curr_spec.join(prev_spec, on=[left_col[0], right_col[0]]).reset_index([left_col[0], right_col[0]])
     spec = spec.round(0)
 
@@ -258,12 +392,12 @@ box_layout = widgets.Layout(display='flex',
                             flex_flow='column',
                             align_items='flex-start',
                             color='black',
-                            width='50%')
+                            width='80%')
 
 bar_label = widgets.HBox([budget_spent, progress_bar, make_it_better])
 prompt_answer = widgets.VBox([answer, submit_btn], layout=box_layout)
 
-# In[156]:
+# In[140]:
 
 
 display(bar_label)
@@ -271,17 +405,24 @@ display(bar_label)
 interface = widgets.VBox([prompt, plot_output, prompt_answer])
 display(interface)
 
-# In[157]:
+# In[ ]:
+
+
+# In[141]:
 
 
 print(handler.show_logs())
 
-# In[158]:
+# In[142]:
 
 
-print(questions)
+# print(questions)
 
-# In[158]:
+
+# In[ ]:
+
+
+# In[ ]:
 
 
 

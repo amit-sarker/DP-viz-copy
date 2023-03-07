@@ -27,9 +27,7 @@ class BackEnd:
         self.prng = np.random.RandomState(seed)
         self.budget_spent = 0
 
-    def measure_hdmm(
-        self, workload: builder.Workload, eps: float, restarts: int, prng=None
-    ):
+    def measure_hdmm(self, workload: builder.Workload, eps: float, restarts: int, prng=None):
         """Runs HDMM on the workload with the specified 'eps', adds the results
         to self.cache
 
@@ -57,12 +55,15 @@ class BackEnd:
             )
 
         engine.optimize(restarts=restarts)
-        x_est = engine.run()
+        x_est, y_hat, strategy_matrix = engine.run()
+        # print(strategy_matrix.matrix.shape)
         # err = error.per_query_error(workload.matrix, engine.strategy, eps)
         W_ans = workload.matrix @ x_est
 
         key = tuple(sorted((workload.column_spec.items())))
         self.cache[key].append(CacheEntry(eps, engine.strategy, x_est))
+
+        return y_hat, strategy_matrix
 
     def measure_pgm(self, marginals, iters, eps=1.0):
         """Runs PGM using measurements from Identity workloads specified in
@@ -104,7 +105,7 @@ class BackEnd:
         model = engine.estimate(measurements, engine="MD")
         return model
 
-    def display(self, workload: builder.Workload, column_names=None) -> pd.DataFrame:
+    def display(self, workload: builder.Workload, column_names=None):
         """Returns a visualization specification for ``workload``, the already
            measured workload. If ``workload`` has not mean measured, a KeyError
            will be thrown.
@@ -116,8 +117,7 @@ class BackEnd:
            DataFrame holding the visualization specification.
         """
         key = tuple(sorted(workload.column_spec.items()))
-
-        cached_measurements = cache_search(self.cache, key)
+        cached_measurements = cache_search(self.cache, key)  # first check this measurements are returning legitimate outputs
         if not cached_measurements:
             raise KeyError(
                 "Attempting to display results of a workload that has \
@@ -127,7 +127,7 @@ class BackEnd:
             )
 
         true_answer = workload.matrix @ self.dataset.datavector()
-        combined_answer, combined_error = remeasure(workload, cached_measurements)
+        combined_answer, combined_error = remeasure(workload, cached_measurements) # figure out the outputs that does make sense
         return specification(
             combined_answer,
             true_answer,
@@ -135,7 +135,7 @@ class BackEnd:
             workload.column_spec,
             self.dataset.domain.config,
             column_names=column_names,
-        )  # JOIE: might want specification to be a NamedTuple also
+        ), cached_measurements  # JOIE: might want specification to be a NamedTuple also
 
 
 def cache_search(cache, target_key):
@@ -390,7 +390,7 @@ def remeasure(
     answers = np.asarray([(W.matrix @ m.At_y) for m in measurements])
     answers = answers.T
 
-    err = error.union_error(W, strategies, epsilons)
+    err = error.union_error(W, strategies, epsilons) #
     combined_ans, combined_err = error.inverse_variance_weighting(
         answers=answers, variances=err
     )

@@ -54,6 +54,6 @@ class HDMM:
         A1 = A.pinv()
         delta = self.strategy.sensitivity()
         noise = self.prng.laplace(loc=0.0, scale=delta / self.eps, size=A.shape[0])
-        self.ans = A.dot(self.x) + noise
+        self.ans = A.dot(self.x) + noise # ans is the noisy answer of the strategy matrix A
         self.xest = A1.dot(self.ans)
-        return self.xest
+        return self.xest, self.ans, A

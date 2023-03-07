@@ -13,21 +13,21 @@ def hist_w_error_wildlife(
         plus_error="plus_error",
         minus_error="minus_error",
         true_count="true_count",
-        bar_color="#1167B1",
+        bar_color="#4C7FFF",
         display_true=False,
         label=False,
         projection=False,
 ):
     hist_color = bar_color
-    opacity1 = 0.6
+    opacity1 = 0.7
     curr_width = 25
     hist = alt.Chart().mark_bar(color=hist_color, opacity=opacity1, width=curr_width)
-
+    # hist = alt.Chart().mark_bar(color=hist_color, opacity=opacity1)
     x = alt.X(field=field_x, type="ordinal", sort=None)
     y = alt.Y(field=noisy_count, type="quantitative", aggregate="sum")
 
     base = (
-        alt.Chart(width=550, height=350)
+        alt.Chart(width=450, height=300) # 250, 175
         .mark_bar()
         .add_selection(brush)
         .encode(
@@ -47,7 +47,7 @@ def hist_w_error_wildlife(
     error_bar = (
         alt.Chart()
         .transform_filter(crossfilter)
-        .mark_rule(color="black")
+        .mark_rule(color="black", size=4)
         .encode(
             x=x,
             y=alt.Y(plus_error + ":Q", aggregate="sum", title=""),
@@ -58,14 +58,14 @@ def hist_w_error_wildlife(
     tick_up = (
         alt.Chart()
         .transform_filter(crossfilter)
-        .mark_tick(color="black", width=20)
+        .mark_tick(color="black", width=0)
         .encode(x=x, y=alt.Y(plus_error + ":Q", aggregate="sum"))
     )
 
     tick_bottom = (
         alt.Chart()
         .transform_filter(crossfilter)
-        .mark_tick(color="black", width=20)
+        .mark_tick(color="black", width=0)
         .encode(x=x, y=alt.Y(minus_error + ":Q", aggregate="sum"))
     )
 
@@ -75,6 +75,13 @@ def hist_w_error_wildlife(
         .mark_point(color="black", opacity=opacity1)
         .encode(x=x, y=alt.Y(noisy_count + ":Q", aggregate="sum", title="Noisy Count"))
     )
+
+    # point = (
+    #     alt.Chart()
+    #     .transform_filter(crossfilter)
+    #     .mark_point(color="black")
+    #     .encode(x=x, y=alt.Y("noisy_count:Q", aggregate="sum", title="Noisy Count"))
+    # )
 
     if display_true:
         true_mark = (
@@ -86,7 +93,7 @@ def hist_w_error_wildlife(
         return alt.layer(base, hist, error_bar, tick_up, tick_bottom, true_mark)
     if projection:
         hist_color = "gray"
-        opacity2 = 0.4
+        opacity2 = 0.2
         prev_y = alt.Y(
             field=noisy_count + "_prev", type="quantitative", aggregate="sum"
         )
@@ -96,7 +103,7 @@ def hist_w_error_wildlife(
         error_bar_prev = (
             alt.Chart()
             .transform_filter(crossfilter)
-            .mark_rule(color="#3ddc65", strokeDash=[1, 1])
+            .mark_rule(color="#9C0000", strokeDash=[3, 3], size=3)
             .encode(
                 x=x,
                 y=alt.Y(plus_error + "_prev" + ":Q", aggregate="sum", title=""),
@@ -107,14 +114,14 @@ def hist_w_error_wildlife(
         tick_up_prev = (
             alt.Chart()
             .transform_filter(crossfilter)
-            .mark_tick(color="#3ddc65", strokeDash=[1, 1], size=20)
+            .mark_tick(color="#3ddc65", strokeDash=[1, 1], size=0)
             .encode(x=x, y=alt.Y(plus_error + "_prev" + ":Q", aggregate="sum"))
         )
 
         tick_bottom_prev = (
             alt.Chart()
             .transform_filter(crossfilter)
-            .mark_tick(color="#3ddc65", strokeDash=[3, 1], size=20)
+            .mark_tick(color="#3ddc65", strokeDash=[3, 1], size=0)
             .encode(x=x, y=alt.Y(minus_error + "_prev" + ":Q", aggregate="sum"))
         )
 
@@ -132,7 +139,7 @@ def hist_w_error_wildlife(
         )
     if label:
         hist_color = "gray"
-        opacity2 = 0.4
+        opacity2 = 0
         prev_y = alt.Y(
             field=noisy_count + "_prev", type="quantitative", aggregate="sum"
         )
@@ -342,14 +349,14 @@ def linked_hist(
     """
 
     def interactive_hist(field_x, field_y, brush, crossfilter):
-        hist_color = "#1167B1"
+        hist_color = "#4C7FFF"
         opacity1 = 0.7
         hist = alt.Chart().mark_bar(color=hist_color, opacity=opacity1)
         x = alt.X(field=field_x, type="ordinal", sort=None)
         y = alt.Y(field=field_y, type="quantitative", aggregate="sum")
 
         base = (
-            alt.Chart(width=500, height=350)
+            alt.Chart(width=450, height=300) # 250, 175
             .mark_bar()
             .add_selection(brush)
             .encode(
@@ -367,7 +374,7 @@ def linked_hist(
         error_bar = (
             alt.Chart()
             .transform_filter(crossfilter)
-            .mark_rule()
+            .mark_rule(size=4)
             .encode(
                 x=x,
                 y=alt.Y("plus_error:Q", aggregate="sum", title=""),
@@ -378,14 +385,14 @@ def linked_hist(
         tick_up = (
             alt.Chart()
             .transform_filter(crossfilter)
-            .mark_tick(color="black", width=20)
+            .mark_tick(color="black", width=0)
             .encode(x=x, y=alt.Y("plus_error:Q", aggregate="sum"))
         )
 
         tick_bottom = (
             alt.Chart()
             .transform_filter(crossfilter)
-            .mark_tick(color="black", width=20)
+            .mark_tick(color="black", width=0)
             .encode(x=x, y=alt.Y("minus_error:Q", aggregate="sum"))
         )
 

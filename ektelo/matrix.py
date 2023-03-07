@@ -401,6 +401,9 @@ class HStack(EkteloMatrix):
 class Kronecker(EkteloMatrix):
     def __init__(self, matrices):
         self.matrices = matrices
+        # print("###############################")
+        # print(matrices[3].matrix)
+        # print("###############################")
         self.shape = tuple(np.prod([Q.shape for Q in matrices], axis=0))
         self.dtype = np.result_type(*[Q.dtype for Q in matrices])
 

@@ -26,18 +26,30 @@ def histogram_workload(domain: Dict[str, int], bin_widths) -> Workload:
     Returns:
             NamedTuple of Workload type holding resulting workload
     """
+    # print("domain: ", domain)
+    # print("Bin width: ", bin_widths)
     kron = []
     bin_widths = dict(sorted(bin_widths.items()))
+    # print("Bins: ", bin_widths)
     for col, size in domain.items():
+        # print("COL ", col, " SIZE ", size)
         if col in bin_widths:
             if isinstance(bin_widths[col], int):
+                # print("uniform histo mat ", size, bin_widths[col])
                 kron.append(uniform_hist_matrix(size, bin_widths[col]))
+                # print("KRON: ", kron)
             elif isinstance(bin_widths[col], List):
                 kron.append(custom_hist_matrix(size, bin_widths[col]))
             elif isinstance(bin_widths[col], tuple):
                 kron.append(selector_matrix(size, bin_widths[col][0]))
         else:
             kron.append(workload.Total(size))
+    # print("-------------------------------")
+    # for i in range(len(kron)):
+    #     print(kron[i].matrix)
+    # print("-------------------------------")
+    # wrk = Workload(matrix=workload.Kronecker(kron), column_spec=bin_widths)
+    # print(workload.Kronecker(kron).matrix[0:20, 0:28])
     return Workload(matrix=workload.Kronecker(kron), column_spec=bin_widths)
 
 
@@ -80,6 +92,8 @@ def uniform_hist_matrix(m: int, bin_width: int) -> EkteloMatrix:
     for i in range(0, n):
         start, end = (i * bin_width, (i + 1) * bin_width)
         matrix[i, start:end] = np.ones(bin_width)
+    # print("uniform_hist_matrix(", m, ",", bin_width, ")")
+    # print("Matrix  ", EkteloMatrix(matrix).matrix)
     return EkteloMatrix(matrix)
 
 

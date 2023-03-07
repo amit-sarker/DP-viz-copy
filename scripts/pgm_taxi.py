@@ -3,8 +3,8 @@ import numpy as np
 import sys
 
 sys.path.append("../src")
-import binning
-import backend
+# import binning
+import src.backend
 
 bins = 500
 step_lon = (-73.77 - -74.05) / bins
@@ -22,7 +22,7 @@ x = pd.read_csv(
 )
 discretized = binning.discretize(x, BINS=bins)
 
-M = backend.BackEnd(discretized, 1.0)
+M = src.backend.BackEnd(discretized, 1.0)
 
 print("Measuring PGM....")
 model = M.measure_pgm([("Lon", "Lat")], iters=1000, eps=1.0)
