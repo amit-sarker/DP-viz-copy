@@ -382,6 +382,8 @@ def binning(measure_dict, epsilon=None, group_income=None):
     spec = curr_spec.join(prev_spec, on=[left_col[0], right_col[0]]).reset_index([left_col[0], right_col[0]])
     spec = spec.round(0)
 
+    print(spec['plus_error'])
+
     with plot_output:
         plot_output.clear_output()
         plot = src.plots.linked_hist_test(left_col[0], right_col[0], data=spec, projection=True, label=False)

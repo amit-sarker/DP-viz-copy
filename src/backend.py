@@ -24,7 +24,7 @@ class BackEnd:
         self.dataset = dataset
         self.cache = defaultdict(list)
         self.budget = budget  # not in use now
-        self.prng = np.random.RandomState(seed)
+        self.prng = np.random.RandomState(seed)                                # there was a seed before
         self.budget_spent = 0
 
     def measure_hdmm(self, workload: builder.Workload, eps: float, restarts: int, prng=None):

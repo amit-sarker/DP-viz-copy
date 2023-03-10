@@ -1,4 +1,5 @@
 import altair as alt
+import pandas as pd
 
 """ Programmatic shortcuts for producing interactive plots using Altair
 visualization library
@@ -7,6 +8,8 @@ visualization library
 
 def hist_w_error_wildlife(
         field_x,
+        title_x,
+        data_copy,
         brush,
         crossfilter,
         noisy_count="noisy_count",
@@ -18,12 +21,29 @@ def hist_w_error_wildlife(
         label=False,
         projection=False,
 ):
+    # calculating scaling for error bars
+    df_noisy_cnt = data_copy.groupby(field_x)['noisy_count'].sum()
+    df_prev_noisy_count = data_copy.groupby(field_x)['noisy_count_prev'].sum()
+    df_plus_err = data_copy.groupby(field_x)['plus_error'].sum()
+    df_minus_err = data_copy.groupby(field_x)['minus_error'].sum()
+
+    df_plus_err_prev = data_copy.groupby(field_x)['plus_error_prev'].sum()
+    df_minus_err_prev = data_copy.groupby(field_x)['minus_error_prev'].sum()
+
+    diff_noisy_cnt = df_noisy_cnt - df_prev_noisy_count
+    scaled_plus_error_prev = df_plus_err_prev + diff_noisy_cnt
+    scaled_minus_error_prev = df_minus_err_prev + diff_noisy_cnt
+
+    df_plus_minus_prev = pd.DataFrame({'group':scaled_plus_error_prev.index, 'scaled_plus_error_prev':scaled_plus_error_prev.values})
+    # df_minus_prev = pd.DataFrame({'group':scaled_minus_error_prev.index, 'scaled_minus_error_prev':scaled_minus_error_prev.values})
+    df_plus_minus_prev['scaled_minus_error_prev'] = scaled_minus_error_prev.values
+
     hist_color = bar_color
     opacity1 = 0.7
-    curr_width = 25
-    hist = alt.Chart().mark_bar(color=hist_color, opacity=opacity1, width=curr_width)
-    # hist = alt.Chart().mark_bar(color=hist_color, opacity=opacity1)
-    x = alt.X(field=field_x, type="ordinal", sort=None)
+    # curr_width = 25
+    # hist = alt.Chart().mark_bar(color=hist_color, opacity=opacity1, width=curr_width)
+    hist = alt.Chart().mark_bar(color=hist_color, opacity=opacity1)
+    x = alt.X(field=field_x, type="ordinal", sort=None, title=title_x)
     y = alt.Y(field=noisy_count, type="quantitative", aggregate="sum")
 
     base = (
@@ -47,7 +67,7 @@ def hist_w_error_wildlife(
     error_bar = (
         alt.Chart()
         .transform_filter(crossfilter)
-        .mark_rule(color="black", size=4)
+        .mark_rule(color="black", size=2)
         .encode(
             x=x,
             y=alt.Y(plus_error + ":Q", aggregate="sum", title=""),
@@ -76,13 +96,6 @@ def hist_w_error_wildlife(
         .encode(x=x, y=alt.Y(noisy_count + ":Q", aggregate="sum", title="Noisy Count"))
     )
 
-    # point = (
-    #     alt.Chart()
-    #     .transform_filter(crossfilter)
-    #     .mark_point(color="black")
-    #     .encode(x=x, y=alt.Y("noisy_count:Q", aggregate="sum", title="Noisy Count"))
-    # )
-
     if display_true:
         true_mark = (
             alt.Chart()
@@ -91,9 +104,11 @@ def hist_w_error_wildlife(
             .encode(x=x, y=alt.Y(true_count + ":Q", aggregate="sum"))
         )
         return alt.layer(base, hist, error_bar, tick_up, tick_bottom, true_mark)
+
+    y = alt.Y(plus_error + ":Q", aggregate="sum", title="")
     if projection:
         hist_color = "gray"
-        opacity2 = 0.2
+        opacity2 = 0
         prev_y = alt.Y(
             field=noisy_count + "_prev", type="quantitative", aggregate="sum"
         )
@@ -101,14 +116,22 @@ def hist_w_error_wildlife(
         hist_prev = alt.Chart().mark_bar(color=hist_color, opacity=opacity2)
         hist_prev = hist_prev.transform_filter(crossfilter).encode(x, prev_y)
         error_bar_prev = (
-            alt.Chart()
-            .transform_filter(crossfilter)
-            .mark_rule(color="#9C0000", strokeDash=[3, 3], size=3)
+            alt.Chart(df_plus_minus_prev)
+            # .mark_rule(color="#B90000", strokeDash=[3, 3], size=2)
+            .mark_rule(color="#B6B6B6", strokeDash=[3, 3], size=2)
             .encode(
-                x=x,
-                y=alt.Y(plus_error + "_prev" + ":Q", aggregate="sum", title=""),
-                y2=alt.Y2(minus_error + "_prev" + ":Q", aggregate="sum", title=""),
+                x=alt.X(field='group', type="ordinal", sort=None, title=title_x),
+                # y=alt.Y(plus_error + ":Q", aggregate="sum", title=""),
+                # y2=alt.Y2(minus_error + ":Q", aggregate="sum", title=""),
+                # y=alt.Y(plus_error + "_prev" + ":Q", aggregate="sum", title=""),
+                # y2=alt.Y2(minus_error + "_prev" + ":Q", aggregate="sum", title=""),
+                y=alt.Y("scaled_plus_error_prev:Q"),
+                y2=alt.Y2("scaled_minus_error_prev:Q"),
+                # y=alt.Y("100", title=""),
+                # y2=alt.Y2("50", title=""),aZ
             )
+            .transform_filter(crossfilter)
+            # .encode(x=x, y=y)
         )
 
         tick_up_prev = (
@@ -129,13 +152,13 @@ def hist_w_error_wildlife(
             base,
             hist_prev,
             hist,
-            error_bar,
-            tick_up,
-            tick_bottom,
             point,
             error_bar_prev,
             tick_up_prev,
             tick_bottom_prev,
+            error_bar,
+            tick_up,
+            tick_bottom,
         )
     if label:
         hist_color = "gray"
@@ -349,10 +372,24 @@ def linked_hist(
     """
 
     def interactive_hist(field_x, field_y, brush, crossfilter):
+        if field_x == 'marital':
+            x = 'Marital'
+        elif field_x == 'age':
+            x = 'Age'
+        elif field_x == 'income':
+            x = 'Income'
+
+        if field_x == 'race':
+            x = 'Race'
+        elif field_x == 'income':
+            x = 'Income'
+        elif field_x == 'marital':
+            x = "Marital"
+
         hist_color = "#4C7FFF"
         opacity1 = 0.7
         hist = alt.Chart().mark_bar(color=hist_color, opacity=opacity1)
-        x = alt.X(field=field_x, type="ordinal", sort=None)
+        x = alt.X(field=field_x, type="ordinal", sort=None, title=x)
         y = alt.Y(field=field_y, type="quantitative", aggregate="sum")
 
         base = (
@@ -374,7 +411,7 @@ def linked_hist(
         error_bar = (
             alt.Chart()
             .transform_filter(crossfilter)
-            .mark_rule(size=4)
+            .mark_rule(size=2)
             .encode(
                 x=x,
                 y=alt.Y("plus_error:Q", aggregate="sum", title=""),
@@ -433,12 +470,30 @@ def linked_hist(
 
 
 def linked_hist_test(field_x1, field_x2, data, projection=False, label=False):
+    if field_x1 == 'marital':
+        x1 = 'Marital'
+    elif field_x1 == 'age':
+        x1 = 'Age'
+    elif field_x1 == 'income':
+        x1 = 'Income'
+
+    if field_x2 == 'race':
+        x2 = 'Race'
+    elif field_x2 == 'income':
+        x2 = 'Income'
+    elif field_x2 == 'marital':
+        x2 = "Marital"
+    # print(data)
     brush_x1 = alt.selection(type="interval", encodings=["x"])
     brush_x2 = alt.selection(type="interval", encodings=["x"])
+    data_copy = data.copy(True)
+
     return (
         alt.hconcat(
             hist_w_error_wildlife(
                 field_x1,
+                x1,
+                data_copy,
                 brush=brush_x1,
                 crossfilter=brush_x2,
                 projection=projection,
@@ -447,6 +502,8 @@ def linked_hist_test(field_x1, field_x2, data, projection=False, label=False):
             ),
             hist_w_error_wildlife(
                 field_x2,
+                x2,
+                data_copy,
                 brush=brush_x2,
                 crossfilter=brush_x1,
                 projection=projection,
