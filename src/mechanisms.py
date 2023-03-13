@@ -49,11 +49,15 @@ class HDMM:
             optp, loss = pid.restart_optimize(W, restarts)
             self.strategy = optp
 
-    def run(self):
+    def run(self, seed):
         A = self.strategy
         A1 = A.pinv()
         delta = self.strategy.sensitivity()
-        noise = self.prng.laplace(loc=0.0, scale=delta / self.eps, size=A.shape[0])
+        # noise = self.prng.laplace(loc=0.0, scale=delta / self.eps, size=A.shape[0])
+        from numpy.random import laplace
+        np.random.seed(seed)
+        noise = laplace(loc=0.0, scale=delta / self.eps, size=A.shape[0])
+        print(self.prng)
         self.ans = A.dot(self.x) + noise # ans is the noisy answer of the strategy matrix A
         self.xest = A1.dot(self.ans)
         return self.xest, self.ans, A

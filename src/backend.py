@@ -24,10 +24,13 @@ class BackEnd:
         self.dataset = dataset
         self.cache = defaultdict(list)
         self.budget = budget  # not in use now
+        print("Seed ", seed)
         self.prng = np.random.RandomState(seed)                                # there was a seed before
+        # self.prng = np.random.seed(1234)
+        print("Inside BackEnd ", self.prng)
         self.budget_spent = 0
 
-    def measure_hdmm(self, workload: builder.Workload, eps: float, restarts: int, prng=None):
+    def measure_hdmm(self, workload: builder.Workload, eps: float, restarts: int, prng=None, seed=0):
         """Runs HDMM on the workload with the specified 'eps', adds the results
         to self.cache
 
@@ -54,8 +57,19 @@ class BackEnd:
                 workload.matrix, self.dataset.datavector(), eps, prng=self.prng
             )
 
+        # if prng is not None:
+        #     print('custom seed', prng.laplace())
+        #     engine = mechanisms.HDMM(
+        #         workload.matrix, self.dataset.datavector(), eps, prng=prng
+        #     )
+        # else:
+        #     print('default seed', self.prng.laplace())
+        #     engine = mechanisms.HDMM(
+        #         workload.matrix, self.dataset.datavector(), eps, prng=self.prng
+        #     )
+
         engine.optimize(restarts=restarts)
-        x_est, y_hat, strategy_matrix = engine.run()
+        x_est, y_hat, strategy_matrix = engine.run(seed)
         # print(strategy_matrix.matrix.shape)
         # err = error.per_query_error(workload.matrix, engine.strategy, eps)
         W_ans = workload.matrix @ x_est
