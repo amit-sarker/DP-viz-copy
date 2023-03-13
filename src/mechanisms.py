@@ -57,7 +57,6 @@ class HDMM:
         from numpy.random import laplace
         np.random.seed(seed)
         noise = laplace(loc=0.0, scale=delta / self.eps, size=A.shape[0])
-        print(self.prng)
         self.ans = A.dot(self.x) + noise # ans is the noisy answer of the strategy matrix A
         self.xest = A1.dot(self.ans)
         return self.xest, self.ans, A
