@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <!-- Import Vega & Vega-Lite (does not have to be from CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <!-- Import vega-embed -->
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+</head>
+
+<body>
+
+<style>
+/*progress {*/
+/*  border-radius: 7px;*/
+/*  width: 30%;*/
+/*  height: 22px;*/
+/*  margin-left: 11.5%;*/
+/*  box-shadow: 1px 1px 4px rgba( 0, 0, 0, 0.2 );*/
+/*}*/
+/*progress::-webkit-progress-bar {*/
+/*  background-color: gray;*/
+/*  border-radius: 7px;*/
+/*}*/
+/*progress::-webkit-progress-value {*/
+/*  background-color: #ff9300;*/
+/*  border-radius: 7px;*/
+/*  !*box-shadow: 1px 1px 5px 3px rgba(255, 106, 0, 80);*!*/
+/*}*/
+/*progress::-moz-progress-bar {*/
+/*  !* style rules *!*/
+/*}*/
+
+/*progress {*/
+/*  text-align:center;*/
+/*  !*height: 1.5em;*!*/
+/*  width: 50%;*/
+/*  height: 20px;*/
+/*  -webkit-appearance: none;*/
+/*  border: none;*/
+/*}*/
+/*progress:before {*/
+/*  content: attr(data-label);*/
+/*  font-size: 0.8em;*/
+/*  vertical-align: 0*/
+/*}*/
+/*progress::-webkit-progress-bar {*/
+/*  background-color: #c9c9c9;*/
+/*}*/
+/*progress::-webkit-progress-value,*/
+/*progress::-moz-progress-bar {*/
+/*  background-color: #7cc4ff;*/
+/*}*/
+
+progress {
+  text-align: center;
+  height: 20px;
+  width: 50%;
+  -webkit-appearance: none;
+  border: none;
+
+  /* Set the progressbar to relative */
+  position:relative;
+}
+progress:before {
+  /*content: attr(data-label);*/
+  content: "Remeasures Used (" attr(value) " of " attr(max) ")";;
+  font-size: 1em;
+  vertical-align: 0;
+
+  /*Position text over the progress bar */
+  position:absolute;
+  left:0;
+  right:0;
+}
+progress::-webkit-progress-bar {
+  background-color: #c9c9c9;
+}
+progress::-webkit-progress-value {
+  background-color: rgb(255, 147, 0);
+}
+progress::-moz-progress-bar {
+  background-color: #7cc4ff;
+}
+
+.main {
+            display: flex;
+            flex-direction: row;
+            font-size: 20px;
+            color: #000000;
+            /*border: 4px dashed #000000;*/
+            padding: 5px;
+            justify-content: space-between;
+            text-align: center;
+            /*width: 400px;*/
+        }
+h3 {
+  /*margin-left: 50px;*/
+  font-weight: bold;
+}
+
+div {
+  margin-left: 50px;
+}
+
+.container {
+  justify-content: space-between;
+  flex-direction: row;
+  /*height: 100vh;*/
+  display: flex;
+}
+.container .btn-holder {
+  justify-content: flex-end;
+  display: flex;
+}
+
+input {
+  width: 600px;
+  height: 50px;
+}
+
+button {
+  width: 150px;
+  height: 30px;
+}
+
+.container2 {
+  height: 100px;
+  position: relative;
+  border: 0px solid green;
+}
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+</style>
+
+<div id="1">
+  <h3>Question 1/6: How many Chinese and American Indians have 'Widowed' as their marital status?</h3>
+</div>
+<br>
+<div class="container" id="2">
+  <progress id="prog1" value="0" max="10" data-label="Remeasures used (0/10)">33%</progress>
+  <div class="btn-holder">
+    <button id="btn1" onclick="remeasure1()">Remeasure Q1</button>
+  </div>
+</div>
+<br>
+<div id="vis0"></div>
+<br><br>
+<div id="3">
+  <span><b>Answer</b></span>
+  <span><input id="ans1" type="number"><br><br></span>
+</div>
+<hr style="height:1px;border-width:0;color:gray;background-color:black" id="4">
+
+
+<div>
+  <h3 id="5">Question 2/6: How many people over the age of 65 have income between 100,000 and 149,000?</h3>
+</div>
+<br>
+<div class="container" id="6">
+  <progress id="prog2" value="0" max="10" data-label="Remeasure used (0/10)">33%</progress>
+  <div class="btn-holder">
+    <button id="btn2" onclick="remeasure2()">Remeasure Q2</button>
+  </div>
+</div>
+<br>
+<div id="vis1"></div>
+<br>
+<div id="7">
+  <span><b>Answer</b></span>
+  <span><input id="ans2" type="number"><br><br></span>
+</div>
+<hr style="height:1px;border-width:0;color:gray;background-color:black" id="8">
+
+<div id="9">
+  <h3>Question 3/6: What is the second most common marital status of people with income in the 100,000 to 199,000 range?</h3>
+</div>
+<br>
+<div class="container" id="10">
+  <progress id="prog3" value="0" max="10" data-label="Remeasure used (0/10)">33%</progress>
+  <div class="btn-holder">
+    <button id="btn3" onclick="remeasure3()">Remeasure Q3</button>
+  </div>
+</div>
+<br>
+<div id="vis2"></div>
+<br>
+<div id="11">
+  <span><b>Answer</b></span>
+  <span><input id="ans3" type="number"><br><br></span>
+</div>
+<hr style="height:1px;border-width:0;color:gray;background-color:black" id="12">
+
+<div id="13">
+  <h3>Question 4/6: Choose the top 3 age groups that have marital status: 'Never Married'?</h3>
+</div>
+<br>
+<div class="container" id="14">
+  <progress id="prog4" value="0" max="10" data-label="Remeasure used (0/10)">33%</progress>
+  <div class="btn-holder">
+    <button id="btn4" onclick="remeasure4()">Remeasure Q4</button>
+  </div>
+</div>
+<br>
+<div id="vis3"></div>
+<div id="15">
+  <span><b>Answer</b></span>
+  <span><input id="ans4" type="number"><br><br></span>
+</div>
+<hr style="height:1px;border-width:0;color:gray;background-color:black" id="16">
+
+<div id="17">
+  <h3>Question 5/6: In the 100,000 to 199,000 income range, rank the top 3 races in terms of count from greatest to least.</h3>
+</div>
+<br>
+<div class="container" id="18">
+  <progress id="prog5" value="0" max="10" data-label="Remeasure used (0/10)">33%</progress>
+  <div class="btn-holder">
+    <button id="btn5" onclick="remeasure5()">Remeasure Q5</button>
+  </div>
+</div>
+<br>
+<div id="vis4"></div>
+<br><br>
+<div id="19">
+  <span><b>Answer</b></span>
+  <span><input id="ans5" type="number"><br><br></span>
+</div>
+<hr style="height:1px;border-width:0;color:gray;background-color:black" id="20">
+
+<div id="21">
+  <h3>Question 6/6: What is the second most common race in the 45-54 age group?</h3>
+</div>
+<br>
+<div class="container" id="22">
+  <progress id="prog6" value="0" max="10" data-label="Remeasure used (0/10)">33%</progress>
+  <div class="btn-holder">
+    <button id="btn6" onclick="remeasure6()">Remeasure Q6</button>
+  </div>
+</div>
+<br>
+<div id="vis5"></div>
+<div id="23">
+  <span><b>Answer</b></span>
+  <span><input id="ans6" type="number"><br><br></span>
+</div>
+<hr style="height:1px;border-width:0;color:gray;background-color:black" id="24">
+
+<div class="container2" id="25">
+  <div class="center">
+    <button id="submit" onclick="submit_ans()">Submit</button>
+  </div>
+
+</div>
+
+<h2 id="final_text">Survey finished. Thanks for your participation!</h2>
+<textarea id="ans" ></textarea>
+
+
+
+<script>
+  var final_text = document.getElementById ( "final_text" ) ;
+  final_text.style.visibility = "hidden" ;
+  var ans_area = document.getElementById ( "ans" ) ;
+  ans_area.style.visibility = "hidden" ;
+
+  var id_rm = 1
+  for (let i = 0; i < 6; i++) {
+        var spec = "charts/init_vis/q_" + (i+1) + ".json";
+        vegaEmbed('#vis' + i, spec).then(function(result) {
+      }).catch(console.error);
+  }
+
+
+  let round1 = 0, round2 = 0, round3 = 0, round4 = 0, round5 = 0, round6 = 0, progress = 0;
+
+  function remeasure1() {
+    round1 ++;
+    var spec = "charts/rm_q1/rm_" + round1 + ".json";
+    vegaEmbed('#vis0', spec);
+    progress = round1 + round2 + round3 + round4 + round5 + round6
+    if (progress >= 10) {
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById("btn" + i).remove()
+      }
+    }
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById("prog" + i).value = progress
+      document.getElementById("prog" + i).data_label = "Remeasures Used (" + progress + "/" + "10)"
+    }
+  }
+
+    function remeasure2() {
+    round2 ++;
+    var spec = "charts/rm_q2/rm_" + round2 + ".json";
+    vegaEmbed('#vis1', spec);
+    progress = round1 + round2 + round3 + round4 + round5 + round6
+      if (progress >= 10) {
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById("btn" + i).remove()
+      }
+    }
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById("prog" + i).value = progress
+    }
+  }
+
+    function remeasure3() {
+    round3 ++;
+    var spec = "charts/rm_q3/rm_" + round3 + ".json";
+    vegaEmbed('#vis2', spec);
+    progress = round1 + round2 + round3 + round4 + round5 + round6
+      if (progress >= 10) {
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById("btn" + i).remove()
+      }
+    }
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById("prog" + i).value = progress
+    }
+  }
+
+    function remeasure4() {
+    round4 ++;
+    var spec = "charts/rm_q4/rm_" + round4 + ".json";
+    vegaEmbed('#vis3', spec);
+    progress = round1 + round2 + round3 + round4 + round5 + round6
+      if (progress >= 10) {
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById("btn" + i).remove()
+      }
+    }
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById("prog" + i).value = progress
+    }
+  }
+
+    function remeasure5() {
+    round5 ++;
+    var spec = "charts/rm_q5/rm_" + round5 + ".json";
+    vegaEmbed('#vis4', spec);
+    progress = round1 + round2 + round3 + round4 + round5 + round6
+      if (progress >= 10) {
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById("btn" + i).remove()
+      }
+    }
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById("prog" + i).value = progress
+    }
+  }
+
+    function remeasure6() {
+    round6 ++;
+    var spec = "charts/rm_q6/rm_" + round6 + ".json";
+    vegaEmbed('#vis5', spec);
+    progress = round1 + round2 + round3 + round4 + round5 + round6
+      if (progress >= 10) {
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById("btn" + i).remove()
+      }
+    }
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById("prog" + i).value = progress
+    }
+  }
+  const ans_dict = {}
+
+
+  function submit_ans() {
+    for (let i = 1; i <= 6; i++) {
+      ans_dict['Question ' + i + ' answer: '] = document.getElementById("ans" + i).value
+    }
+    // console.log(ans_dict)
+    let final_ans = ''
+    for (let i = 1; i <= 6; i++) {
+      final_ans += 'Question ' + i + ' answer: ' + ans_dict['Question ' + i + ' answer: '] + '\n'
+    }
+
+    for (let i = 1; i <= 25; i++) {
+      document.getElementById(i.toString()).remove()
+    }
+    for (let i = 0; i < 6; i++) {
+      document.getElementById('vis' + i).remove()
+    }
+    final_text.style.visibility = "visible";
+
+    document.getElementById('ans').value = final_ans
+    ans_area.style.visibility = "visible" ;
+    ans_area.style.height = "150px";
+    ans_area.style.width = "80%";
+
+  }
+
+</script>
+</body>
+</html>
